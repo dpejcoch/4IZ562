@@ -1,12 +1,17 @@
 # 4IZ562 Řízení kvality dat
 (Aktualizováno pro LS 2025/26)
 
+
+* Přednášky: pátek 7:30 - 9:00 CET, cvičení: pátek 18:00 - 19:30 CET
+* Konzultační hodiny individuálně na základě dohody s vyučujícím
+
+
 ## Struktura kurzu
 
 ### Úvod do řízení dat
 
-1. **2025-02-20**: Úvod, organizační pokyny, motivace k řešení problematiky datové kvality, co je to kvalita dat a informací. Konfigurace labu, představení umělých dat, výstupů, MySQL toolbox.
-2. **2025-02-27**: Data, Data Management, vlastnosti dat, příčiny a důsledky nekvalitních dat, Six Sigma, Kaizen, rekonciliace dat, root-cause analýza. Případové studie, měření vlastností dat, měření nákladů nekvalitních dat.
+1. **2025-02-20**: Úvod, organizační pokyny, motivace k řešení problematiky datové kvality. Požadavky na úspěšné absolvování kurzu. Co je to kvalita dat a informací. Řízení kvality dat a informací, Data Quality 1-2-3. Konfigurace labu, představení umělých dat, výstupů, MySQL toolbox.
+2. **2025-02-27**: Vlastnosti dat. Příčiny a důsledky nekvalitních dat, Six Sigma, Kaizen, rekonciliace dat, root-cause analýza. Případové studie, měření vlastností dat, měření nákladů nekvalitních dat.
 3. **2022-03-06**: Data Governance, související právní normy, Entity Recognition, kvalita metadat, datové katalogy, Data Lineage a Data Provenance. Právní normy relevantní pro naši praktickou úlohu, návrh principů, standardů, politik v praxi. Entity Recognition v praxi, anonymizace, masking, pseudonymizace dat.
 
 ### Analýza současného stavu
@@ -25,7 +30,7 @@
 
 ### Monitorování datové kvality
 
-13. **2025-05-15**: Implementace monitoringu, kontinuální zvyšování kvality dat, Augmented Data Quality, specifické formy datové kvality (nestrukturovaná data, Linked Data, ...). Extrakce metadat z nestrukturovaných dat, deduplikace nestrukturovaných dat. Aktuální trendy a výzvy. Příprava na test. 
+13. **2025-05-15**: Implementace monitoringu, kontinuální zvyšování kvality dat, Augmented Data Quality, specifické formy datové kvality (nestrukturovaná data, Linked Data, ...). Rozdíl mezi Data Qualitz Monitoring a Data Observability. Extrakce metadat z nestrukturovaných dat, deduplikace nestrukturovaných dat. Aktuální trendy a výzvy. Příprava na test. 
 
 ### Zkouškové období
 
@@ -42,26 +47,31 @@
 * 60% celkového hodnocení
 
 #### Audit kvality dat
-1. Technický profiling: s pomocí vybraného nástroje vytvořte profilaci dat (základní popisné statistiky, četnosti syntaktických vzorů, ...)
-2. Validace vybraných atributů pomocí regulárních výrazů, kontrolních součtů, lookup a business pravidel
-3. Spočtěte úroveň kvantitativních vlastností dat (správnost, úplnost, konzistentnost, ...)
-4. Root-cause analýza zjištěných defektů
-5. Na příkladu modelové firmy odhadněte roční výši nákladů na nekvalitní data
-6. Porovnejte možné přínosy nápravných opatření se souvisejícími náklady
-7. Proveďte prioritizaci nápravných opatření
-8. Navrhněte externí datové zroje pro obohacení dat
-9. Navrhněte strategii pro doplnění chybějících hodnot
-10. Odevzdání vypracované zprávy auditora + naměřené charakteristiky / náklady (PDF dokument dle šablony pro zprávu auditora)
+* Identifikujte relevantní právní normy a regulace
+* Identifikujte klíčové datové elementy
+* Technický profiling: s pomocí vybraného nástroje vytvořte profilaci dat (základní popisné statistiky, četnosti syntaktických vzorů, ...)
+* Validace vybraných atributů pomocí regulárních výrazů, kontrolních součtů, lookup a business pravidel
+* Spočtěte úroveň kvantitativních vlastností dat (správnost, úplnost, konzistentnost, ...)
+* Identifikujte nesoulad s požadavky právních norem a regulací
+* Identifikujte nedostatky ve stávajícím datovém modelu (chybějící atributy, zbytečné atributy, chybné datové typy, nekonzistentní názvy, nekonzistentní collations)
+* Root-cause analýza zjištěných defektů
+* Na příkladu modelové firmy odhadněte roční výši nákladů na nekvalitní data (v kontextu užití dat)
+* Porovnejte možné přínosy nápravných opatření se souvisejícími náklady
+* Proveďte prioritizaci nápravných opatření
+* Navrhněte externí datové zroje pro obohacení dat
+* Navrhněte strategii pro doplnění chybějících hodnot
+* Odevzdání vypracované zprávy auditora + naměřené charakteristiky / náklady (Word / HTML / PDF / Jupyter Notebook dle šablony pro zprávu auditora)
 
 #### Implementace doporučených opatření
-1. Optimalizace datového modelu
-2. Parsing adresy, standardizace, vytvoření porovnávacích kódů a zřetězení na adresní registr
-3. Nastavení příznaku doručitelnosti na adresu na základě pravidel
-4. Doplnění chybějících pozorování
-5. Unifikace dat klientů, adres, kontaktů
-6. Deduplikace klientů
-7. Návrh kontrol bránících dalšímu vzniku chyb v datech
-8. Odevzdání CSV souborů s vyčištěnými daty + PDF dokumentace provedených opatření
+* Optimalizace datového modelu
+* Parsing adresy, standardizace, vytvoření porovnávacích kódů a zřetězení na adresní registr
+* Nastavení příznaku doručitelnosti na adresu na základě pravidel
+* Doplnění chybějících pozorování
+* Unifikace dat klientů, adres, kontaktů
+* Deduplikace klientů
+* Identifikace domácnosti
+* Návrh kontrol bránících dalšímu vzniku chyb v datech
+* Odevzdání CSV souboru s vyčištěnými daty (viz instrukce ze cvičení) + PDF dokumentace provedených opatření
 
 ### Celková klasifikace
 
@@ -135,11 +145,13 @@
 Pro vypracování semestrální práce potřebujete data modelové firmy dostupné jako SQL dump z MySQL / MariaDB databáze. SQL soubor chráněný heslem je dostupný z adresáře [data](data/4iz562.zip).
 
 Doporučené nástroje:
-* Validace dat (technické testy): Great Expectations (GX) (https://greatexpectations.io), DBT Testing
+* Validace dat (technické testy): Great Expectations (GX) (https://greatexpectations.io), DBT Tests (Pokud budete nahrávat csv soubory do DB modelu)
 * Data Profiling: Ydata Profiling (Python library)
-* Další free nástroje: OpenRafine,  SODA Core (https://www.soda.io), MobyDQ, Deequ, Quadient DataCleaner, Apache Griffin, OpenRafine, DataKitchen (https://datakitchen.io)
-* Ataccama DQ Analzyer (stažitelný na www.ataccama.com) + Master Data Center (instalace na vyžádání) + Atacama ONE Profiler (online)
-* DataCleaner Community Edition dostupný na datacleaner.github.io (data profiling, data wrangling, etc.)
-* Open Source Data Quality and Profiling dostupný na sourceforge.net/projects/dataquality (profiling, metadata discovery, anomaly detection, deduplication, standardization, address correction, data masking)
+* Další free nástroje: OpenRafine,  SODA Core (https://www.soda.io), MobyDQ, Deequ, Quadient DataCleaner, Apache Griffin, DataKitchen (https://datakitchen.io)
+* Ataccama DQ Analyzer (stažitelný na www.ataccama.com) + Atacama ONE Profiler (online)
+* DataCleaner Community Edition dostupný na https://datacleaner.github.io (data profiling, data wrangling, etc.)
+* Open Source Data Quality and Profiling dostupný na https://sourceforge.net/projects/dataquality (profiling, metadata discovery, anomaly detection, deduplication, standardization, address correction, data masking)
 * Vlastní nástroj napsaný v SQL + jakýkoliv jazyk (R, Java, Python, ...)
+* Claude Pro + skills + MySQL MCP Server
+* Python + HTML/JavaScript generovaný Claude
 
