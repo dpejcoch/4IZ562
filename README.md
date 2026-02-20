@@ -142,9 +142,17 @@
 
 ## Lab
 
-Pro vypracování semestrální práce potřebujete data modelové firmy dostupné jako SQL dump z MySQL / MariaDB databáze. SQL soubor chráněný heslem je dostupný z adresáře [data](data/4iz562.zip).
+Pro vypracování semestrální práce potřebujete data modelové firmy dostupné jako SQL dump z MySQL / MariaDB databáze. SQL soubor je dostupný z Teams.
 
-Doporučené nástroje:
+Na cvičeních budeme používat vlastní virtuální prostředí (VM/Docker) + Jupyter Notebook s MySQL kernelem (alternativně můžete používat VS Code s příslušnými pluginy)
+
+### Rozhodovací matice pro prostředí
+* Windows + nechci si ušpinit ruce: předpřipravaný OVA pro VirtualBox
+* Windows + chci si ušpinit ruce: vytvořit vlastní VM pro VirtualBox
+* Mac M1+ (nejsnazší cesta): Docker Desktop + předpřipravené YAML pro docker compose
+* Linux: VirtualBox nebo Docker + virtualenv nebo Jupyter container
+
+### Další nástroje
 * Validace dat (technické testy): Great Expectations (GX) (https://greatexpectations.io), DBT Tests (Pokud budete nahrávat csv soubory do DB modelu)
 * Data Profiling: Ydata Profiling (Python library)
 * Další free nástroje: OpenRafine,  SODA Core (https://www.soda.io), MobyDQ, Deequ, Quadient DataCleaner, Apache Griffin, DataKitchen (https://datakitchen.io)
