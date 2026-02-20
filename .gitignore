@@ -1,3 +1,4 @@
 mysql-data
 data
-notebooks
+notebooks/secret
+*.ipynb_checkpoints
