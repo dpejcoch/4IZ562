@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Quality Cost Model — Insurance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1117;
+    --ink2: #3a3d47;
+    --ink3: #7a7e8a;
+    --paper: #f9f8f5;
+    --surface: #ffffff;
+    --border: #e2e0d9;
+    --border2: #c8c5bb;
+    --accent: #c8722a;
+    --accent2: #e8904a;
+    --c1: #1d4e8f;
+    --c1-bg: #edf2fb;
+    --c1-border: #b8cff0;
+    --c2a: #1a6b4a;
+    --c2a-bg: #eaf4f0;
+    --c2a-border: #a8d9c5;
+    --c2b: #8a4a10;
+    --c2b-bg: #fdf0e6;
+    --c2b-border: #f0c898;
+    --total: #0f1117;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .page-header {
+    background: var(--ink);
+    color: #fff;
+    padding: 3rem 0 2.5rem;
+    border-bottom: 3px solid var(--accent);
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: .75rem;
+    display: block;
+  }
+
+  .header-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: .75rem;
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: #9da3b0;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  /* ── Section anatomy ── */
+  .section { padding: 3rem 0; border-bottom: 1px solid var(--border); }
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin-bottom: .75rem;
+    color: var(--ink);
+  }
+
+  .section-intro {
+    font-size: 15px;
+    color: var(--ink2);
+    max-width: 680px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Master formula ── */
+  .master-formula {
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .mf-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: .4rem;
+  }
+  .mf-eq {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: .02em;
+    line-height: 1;
+  }
+  .mf-sep { color: #4b5563; font-size: 1.5rem; }
+  .mf-c1  { color: #7eb3f5; }
+  .mf-c2a { color: #6dd4aa; }
+  .mf-c2b { color: #f5b87a; }
+
+  /* ── Component cards ── */
+  .component-grid { display: grid; gap: 1.25rem; }
+
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .comp-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+
+  .comp-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comp-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    padding: .3rem .75rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .badge-c1  { background: var(--c1-bg);  color: var(--c1);  border: 1px solid var(--c1-border); }
+  .badge-c2a { background: var(--c2a-bg); color: var(--c2a); border: 1px solid var(--c2a-border); }
+  .badge-c2b { background: var(--c2b-bg); color: var(--c2b); border: 1px solid var(--c2b-border); }
+
+  .comp-header-text { flex: 1; }
+  .comp-name { font-size: 16px; font-weight: 500; color: var(--ink); margin-bottom: .2rem; }
+  .comp-desc { font-size: 13px; color: var(--ink3); }
+
+  .comp-formula {
+    background: #f5f4f1;
+    padding: .9rem 1.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--ink2);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: .01em;
+  }
+
+  .comp-params {
+    padding: 1.25rem 1.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: .75rem;
+  }
+
+  .param-def { display: flex; gap: .75rem; }
+  .param-sym {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+    padding-top: 1px;
+    min-width: 80px;
+  }
+  .param-text { font-size: 13px; color: var(--ink3); line-height: 1.5; }
+  .param-text strong { color: var(--ink2); font-weight: 500; }
+
+  /* ── Calculator ── */
+  .calc-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .calc-section-head {
+    background: #f5f4f1;
+    padding: .75rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .calc-section-head .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .dot-c1  { color: var(--c1); }
+  .dot-c2a { color: var(--c2a); }
+  .dot-c2b { color: var(--c2b); }
+  .dot-base { color: var(--accent); }
+
+  .slider-grid {
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .slider-item { display: flex; flex-direction: column; gap: 4px; }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .slider-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink2);
+  }
+  .slider-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .slider-desc {
+    font-size: 12px;
+    color: var(--ink3);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--border2);
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
+  input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--border2);
+    cursor: pointer;
+  }
+
+  /* ── Results ── */
+  .results-area {
+    padding: 1.75rem 2rem;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .result-card {
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    border: 1px solid;
+  }
+  .result-card.rc1  { background: var(--c1-bg);  border-color: var(--c1-border); }
+  .result-card.rc2a { background: var(--c2a-bg); border-color: var(--c2a-border); }
+  .result-card.rc2b { background: var(--c2b-bg); border-color: var(--c2b-border); }
+
+  .rc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: .6rem;
+  }
+  .rc1  .rc-label { color: var(--c1); }
+  .rc2a .rc-label { color: var(--c2a); }
+  .rc2b .rc-label { color: var(--c2b); }
+
+  .rc-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: .4rem;
+  }
+  .rc1  .rc-value { color: var(--c1); }
+  .rc2a .rc-value { color: var(--c2a); }
+  .rc2b .rc-value { color: var(--c2b); }
+
+  .rc-desc { font-size: 12px; color: var(--ink3); line-height: 1.4; }
+
+  /* Bar chart */
+  .bar-chart { margin-bottom: 1.25rem; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .bar-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    width: 36px;
+    flex-shrink: 0;
+    color: var(--ink3);
+  }
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: var(--paper);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+  .b-c1  { background: var(--c1); opacity: .7; }
+  .b-c2a { background: var(--c2a); opacity: .7; }
+  .b-c2b { background: var(--c2b); opacity: .7; }
+  .bar-amt {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink2);
+    width: 90px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Total row */
+  .total-row {
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .total-left { }
+  .total-label-main {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .total-sublabel {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .04em;
+  }
+  .total-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--accent2);
+    transition: color .3s;
+  }
+
+  /* ── Notes ── */
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+  }
+  .note-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: .5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .note-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .note-body { font-size: 13px; color: var(--ink3); line-height: 1.6; }
+  .note-body em { color: var(--ink2); font-style: normal; font-weight: 500; }
+
+  /* ── Footer ── */
+  .page-footer {
+    background: var(--ink);
+    color: #6b7280;
+    padding: 2rem 0;
+    text-align: center;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .04em;
+    margin-top: 2rem;
+  }
+  .page-footer span { color: var(--accent2); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .results-grid { grid-template-columns: 1fr; }
+    .slider-grid { grid-template-columns: 1fr; padding: 1.25rem; }
+    .comp-params { grid-template-columns: 1fr; }
+    .master-formula { padding: 1.5rem; gap: 1rem; }
+    .mf-eq { font-size: 1.1rem; }
+    .container { padding: 0 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <span class="header-tag">Data Quality · Cost Modelling · Insurance</span>
+    <h1 class="header-title">Non-Quality Cost from<br>Duplicate Customer Records</h1>
+    <p class="header-sub">A quantitative framework for estimating annual financial impact of duplicate records on CLV accuracy, servicing quality, and cross-sell targeting in an insurance book of business.</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── FORMULA OVERVIEW ── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">01 — Master formula</div>
+      <h2 class="section-title">Total Non-Quality Cost</h2>
+      <p class="section-intro">
+        The total cost decomposes into three independent components, each representing a distinct failure mode caused by the inability to identify a unique customer across fragmented records.
+      </p>
+
+      <div class="master-formula">
+        <div>
+          <div class="mf-label">NQC (annual estimate)</div>
+          <div class="mf-eq">NQC &nbsp;=&nbsp; <span class="mf-c1">C₁</span> &nbsp;+&nbsp; <span class="mf-c2a">C₂ₐ</span> &nbsp;+&nbsp; <span class="mf-c2b">C₂ᵦ</span></div>
+        </div>
+      </div>
+
+      <div class="component-grid">
+
+        <!-- C1 -->
+        <div class="comp-card">
+          <div class="comp-header">
+            <span class="comp-badge badge-c1">C₁</span>
+            <div class="comp-header-text">
+              <div class="comp-name">Wrong servicing cost — churn-driven CLV loss</div>
+              <div class="comp-desc">High-value customers misclassified into a lower segment receive an inferior service level, increasing their probability of churning.</div>
+            </div>
+          </div>
+          <div class="comp-formula">C₁ = Nᵤ · φ · π<sub>HV</sub> · P<sub>↓</sub> · ΔΛ · CLV<sub>HV</sub></div>
+          <div class="comp-params">
+            <div class="param-def"><span class="param-sym">Nᵤ</span><span class="param-text"><strong>Unique customers</strong> — total distinct customers in the book</span></div>
+            <div class="param-def"><span class="param-sym">φ</span><span class="param-text"><strong>Duplicate prevalence</strong> — share of customers with ≥1 duplicate record</span></div>
+            <div class="param-def"><span class="param-sym">π<sub>HV</sub></span><span class="param-text"><strong>High-value share</strong> — proportion in the top CLV segment</span></div>
+            <div class="param-def"><span class="param-sym">P<sub>↓</sub></span><span class="param-text"><strong>Segment downgrade prob.</strong> — probability a duplicate-affected HV customer is misclassified</span></div>
+            <div class="param-def"><span class="param-sym">ΔΛ</span><span class="param-text"><strong>Incremental churn rate</strong> — additional annual churn attributable to wrong service level</span></div>
+            <div class="param-def"><span class="param-sym">CLV<sub>HV</sub></span><span class="param-text"><strong>High-value CLV</strong> — net present value of expected lifetime value per HV customer</span></div>
+          </div>
+        </div>
+
+        <!-- C2a -->
+        <div class="comp-card">
+          <div class="comp-header">
+            <span class="comp-badge badge-c2a">C₂ₐ</span>
+            <div class="comp-header-text">
+              <div class="comp-name">Missed x-sell revenue — foregone margin</div>
+              <div class="comp-desc">A fragmented customer profile causes the scoring model to exclude HV customers from x-sell campaigns, missing conversion opportunities.</div>
+            </div>
+          </div>
+          <div class="comp-formula">C₂ₐ = Nᵤ · φ · π<sub>HV</sub> · P<sub>miss</sub> · CR<sub>HV</sub> · M<sub>xs</sub></div>
+          <div class="comp-params">
+            <div class="param-def"><span class="param-sym">P<sub>miss</sub></span><span class="param-text"><strong>X-sell miss prob.</strong> — probability a duplicate-affected HV customer falls below the targeting threshold</span></div>
+            <div class="param-def"><span class="param-sym">CR<sub>HV</sub></span><span class="param-text"><strong>X-sell conversion rate</strong> — expected conversion on HV-targeted cross-sell offers</span></div>
+            <div class="param-def"><span class="param-sym">M<sub>xs</sub></span><span class="param-text"><strong>X-sell margin</strong> — gross margin per successful cross-sell product placed</span></div>
+          </div>
+        </div>
+
+        <!-- C2b -->
+        <div class="comp-card">
+          <div class="comp-header">
+            <span class="comp-badge badge-c2b">C₂ᵦ</span>
+            <div class="comp-header-text">
+              <div class="comp-name">Wasted campaign spend — redundant contact cost</div>
+              <div class="comp-desc">Duplicate records trigger multiple outreach touches to the same individual. The surplus contacts beyond the first are pure waste.</div>
+            </div>
+          </div>
+          <div class="comp-formula">C₂ᵦ = Nᵤ · φ · (d̄ − 1) · C<sub>xc</sub></div>
+          <div class="comp-params">
+            <div class="param-def"><span class="param-sym">d̄</span><span class="param-text"><strong>Avg duplicate records</strong> — mean total records per duplicate-affected customer</span></div>
+            <div class="param-def"><span class="param-sym">C<sub>xc</sub></span><span class="param-text"><strong>Contact cost</strong> — fully-loaded cost per x-sell outreach attempt (digital, mail, phone)</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CALCULATOR ── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">02 — Interactive estimator</div>
+      <h2 class="section-title">Calibrate to your book</h2>
+      <p class="section-intro">Adjust the parameters below to estimate the annual non-quality cost for your portfolio. All inputs are editable — results update in real time.</p>
+
+      <div class="calc-wrapper">
+
+        <!-- Base params -->
+        <div class="calc-section-head">
+          <span class="dot dot-base"></span>
+          Base parameters
+        </div>
+        <div class="slider-grid">
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">Nᵤ — Unique customers</span>
+              <span class="slider-val" id="v-nu">500,000</span>
+            </div>
+            <div class="slider-desc">Total distinct customers in the book of business</div>
+            <input type="range" id="r-nu" min="50000" max="5000000" step="50000" value="500000" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">φ — Duplicate prevalence</span>
+              <span class="slider-val" id="v-phi">12%</span>
+            </div>
+            <div class="slider-desc">Share of unique customers with ≥1 duplicate record</div>
+            <input type="range" id="r-phi" min="1" max="40" step="1" value="12" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">π<sub>HV</sub> — High-value share</span>
+              <span class="slider-val" id="v-phv">15%</span>
+            </div>
+            <div class="slider-desc">Proportion of customers in the top CLV segment</div>
+            <input type="range" id="r-phv" min="2" max="30" step="1" value="15" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">d̄ — Avg duplicate records</span>
+              <span class="slider-val" id="v-dbar">1.8×</span>
+            </div>
+            <div class="slider-desc">Mean total records per duplicate-affected customer</div>
+            <input type="range" id="r-dbar" min="1.1" max="4" step="0.1" value="1.8" oninput="calc()">
+          </div>
+        </div>
+
+        <!-- C1 params -->
+        <div class="calc-section-head">
+          <span class="dot dot-c1"></span>
+          C₁ — Servicing parameters
+        </div>
+        <div class="slider-grid">
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">P<sub>↓</sub> — Segment downgrade prob.</span>
+              <span class="slider-val" id="v-pdown">40%</span>
+            </div>
+            <div class="slider-desc">Probability a duplicate-affected HV customer is misclassified into a lower segment</div>
+            <input type="range" id="r-pdown" min="5" max="80" step="5" value="40" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">ΔΛ — Incremental churn rate</span>
+              <span class="slider-val" id="v-dl">4%</span>
+            </div>
+            <div class="slider-desc">Additional annual churn attributable to receiving the wrong service tier</div>
+            <input type="range" id="r-dl" min="0.5" max="15" step="0.5" value="4" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">CLV<sub>HV</sub> — High-value CLV</span>
+              <span class="slider-val" id="v-clv">£12,000</span>
+            </div>
+            <div class="slider-desc">Net present value of expected lifetime value per high-value customer</div>
+            <input type="range" id="r-clv" min="1000" max="50000" step="500" value="12000" oninput="calc()">
+          </div>
+        </div>
+
+        <!-- C2 params -->
+        <div class="calc-section-head">
+          <span class="dot dot-c2a"></span>
+          C₂ — X-sell parameters
+        </div>
+        <div class="slider-grid">
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">P<sub>miss</sub> — X-sell miss prob.</span>
+              <span class="slider-val" id="v-pmiss">50%</span>
+            </div>
+            <div class="slider-desc">Probability a duplicate-affected HV customer falls below x-sell targeting threshold</div>
+            <input type="range" id="r-pmiss" min="5" max="80" step="5" value="50" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">CR<sub>HV</sub> — X-sell conversion rate</span>
+              <span class="slider-val" id="v-cr">8%</span>
+            </div>
+            <div class="slider-desc">Expected conversion rate on cross-sell offers for the high-value segment</div>
+            <input type="range" id="r-cr" min="1" max="25" step="1" value="8" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">M<sub>xs</sub> — X-sell margin</span>
+              <span class="slider-val" id="v-mxs">£600</span>
+            </div>
+            <div class="slider-desc">Average gross margin per successful cross-sell product placed</div>
+            <input type="range" id="r-mxs" min="100" max="3000" step="100" value="600" oninput="calc()">
+          </div>
+          <div class="slider-item">
+            <div class="slider-label">
+              <span class="slider-name">C<sub>xc</sub> — Contact cost</span>
+              <span class="slider-val" id="v-cxc">£8</span>
+            </div>
+            <div class="slider-desc">Fully-loaded cost per x-sell outreach attempt per record</div>
+            <input type="range" id="r-cxc" min="1" max="50" step="1" value="8" oninput="calc()">
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-area">
+
+          <div class="results-grid">
+            <div class="result-card rc1">
+              <div class="rc-label">C₁ — Wrong servicing</div>
+              <div class="rc-value" id="out-c1">—</div>
+              <div class="rc-desc">CLV lost to churn from misclassified high-value customers</div>
+            </div>
+            <div class="result-card rc2a">
+              <div class="rc-label">C₂ₐ — Missed x-sell</div>
+              <div class="rc-value" id="out-c2a">—</div>
+              <div class="rc-desc">Foregone margin on x-sell opportunities not pursued</div>
+            </div>
+            <div class="result-card rc2b">
+              <div class="rc-label">C₂ᵦ — Wasted spend</div>
+              <div class="rc-value" id="out-c2b">—</div>
+              <div class="rc-desc">Duplicate outreach costs on fragmented records</div>
+            </div>
+          </div>
+
+          <div class="bar-chart" id="bar-chart">
+            <div class="bar-row">
+              <span class="bar-name">C₁</span>
+              <div class="bar-track"><div class="bar-fill b-c1" id="bar-c1" style="width:0%"></div></div>
+              <span class="bar-amt" id="bar-amt-c1">—</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-name">C₂ₐ</span>
+              <div class="bar-track"><div class="bar-fill b-c2a" id="bar-c2a" style="width:0%"></div></div>
+              <span class="bar-amt" id="bar-amt-c2a">—</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-name">C₂ᵦ</span>
+              <div class="bar-track"><div class="bar-fill b-c2b" id="bar-c2b" style="width:0%"></div></div>
+              <span class="bar-amt" id="bar-amt-c2b">—</span>
+            </div>
+          </div>
+
+          <div class="total-row">
+            <div class="total-left">
+              <div class="total-label-main">Total Non-Quality Cost (NQC)</div>
+              <div class="total-sublabel">Annual estimate · C₁ + C₂ₐ + C₂ᵦ</div>
+            </div>
+            <div class="total-value" id="out-total">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CALIBRATION NOTES ── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">03 — Calibration guidance</div>
+      <h2 class="section-title">How to estimate parameters</h2>
+      <p class="section-intro">The formula is only as good as its inputs. Here is where each parameter should come from in practice.</p>
+      <div class="notes-grid">
+        <div class="note-card">
+          <div class="note-title">P↓ and P<sub>miss</sub></div>
+          <div class="note-body">The hardest parameters to estimate without a data exercise. Run a matching sample: score CLV on fragmented records versus merged records and observe how many HV customers fall below segment or targeting thresholds. Even a <em>1,000-record sample</em> will give a defensible estimate.</div>
+        </div>
+        <div class="note-card">
+          <div class="note-title">ΔΛ — Incremental churn</div>
+          <div class="note-body">Should come from a churn model that controls for service tier. If an experimental holdout exists where service tier was misassigned, use observed churn directly. <em>Do not assume</em> — even 1% incremental churn at scale moves NQC materially.</div>
+        </div>
+        <div class="note-card">
+          <div class="note-title">CLV<sub>HV</sub> — Lifetime value</div>
+          <div class="note-body">Use <em>net present value</em> of future premiums minus expected claims and administration costs — not gross written premium. Using revenue inflates C₁ significantly. A 5-year horizon discounted at the firm's cost of capital is a reasonable default.</div>
+        </div>
+        <div class="note-card">
+          <div class="note-title">Overlap correction</div>
+          <div class="note-body">C₁ and C₂ₐ are not fully independent: a customer excluded from x-sell targeting who also churns is double-counted. Apply a correction of <em>(1 − ρ)</em> to C₂ₐ where ρ is the correlation between the two failure modes. In most books ρ is small enough to ignore in the first pass.</div>
+        </div>
+        <div class="note-card">
+          <div class="note-title">φ — Duplicate prevalence</div>
+          <div class="note-body">Run a <em>deterministic + probabilistic matching</em> exercise on a stratified sample (name, DoB, postcode, policy number) to get a defensible prevalence rate. Industry benchmarks for insurance range from 8% to 25% depending on legacy system history.</div>
+        </div>
+        <div class="note-card">
+          <div class="note-title">Using the model for ROI</div>
+          <div class="note-body">NQC is the upper bound of value available through deduplication. A data remediation programme costing less than NQC has a positive expected return. Use <em>C₂ᵦ alone</em> as the easiest, most defensible floor — it requires no CLV assumptions.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <span>NQC</span> = C₁ + C₂ₐ + C₂ᵦ &nbsp;·&nbsp; Data Quality Cost Model &nbsp;·&nbsp; Insurance Edition
+</footer>
+
+<script>
+  function fmt(n) {
+    if (n >= 1e6)  return '£' + (n / 1e6).toFixed(2) + 'M';
+    if (n >= 1e3)  return '£' + Math.round(n / 1e3).toLocaleString() + 'K';
+    return '£' + Math.round(n).toLocaleString();
+  }
+
+  function calc() {
+    const Nu    = +document.getElementById('r-nu').value;
+    const phi   = +document.getElementById('r-phi').value / 100;
+    const phv   = +document.getElementById('r-phv').value / 100;
+    const dbar  = +document.getElementById('r-dbar').value;
+    const pdown = +document.getElementById('r-pdown').value / 100;
+    const dl    = +document.getElementById('r-dl').value / 100;
+    const clv   = +document.getElementById('r-clv').value;
+    const pmiss = +document.getElementById('r-pmiss').value / 100;
+    const cr    = +document.getElementById('r-cr').value / 100;
+    const mxs   = +document.getElementById('r-mxs').value;
+    const cxc   = +document.getElementById('r-cxc').value;
+
+    // Display labels
+    document.getElementById('v-nu').textContent    = Math.round(Nu).toLocaleString();
+    document.getElementById('v-phi').textContent   = Math.round(phi * 100) + '%';
+    document.getElementById('v-phv').textContent   = Math.round(phv * 100) + '%';
+    document.getElementById('v-dbar').textContent  = dbar.toFixed(1) + '×';
+    document.getElementById('v-pdown').textContent = Math.round(pdown * 100) + '%';
+    document.getElementById('v-dl').textContent    = (+document.getElementById('r-dl').value).toFixed(1) + '%';
+    document.getElementById('v-clv').textContent   = '£' + Math.round(clv).toLocaleString();
+    document.getElementById('v-pmiss').textContent = Math.round(pmiss * 100) + '%';
+    document.getElementById('v-cr').textContent    = Math.round(cr * 100) + '%';
+    document.getElementById('v-mxs').textContent   = '£' + Math.round(mxs).toLocaleString();
+    document.getElementById('v-cxc').textContent   = '£' + Math.round(cxc);
+
+    const c1  = Nu * phi * phv * pdown * dl * clv;
+    const c2a = Nu * phi * phv * pmiss * cr * mxs;
+    const c2b = Nu * phi * (dbar - 1) * cxc;
+    const total = c1 + c2a + c2b;
+
+    document.getElementById('out-c1').textContent  = fmt(c1);
+    document.getElementById('out-c2a').textContent = fmt(c2a);
+    document.getElementById('out-c2b').textContent = fmt(c2b);
+    document.getElementById('out-total').textContent = fmt(total);
+
+    // Bar chart
+    const max = Math.max(c1, c2a, c2b, 1);
+    document.getElementById('bar-c1').style.width  = (c1  / max * 100).toFixed(1) + '%';
+    document.getElementById('bar-c2a').style.width = (c2a / max * 100).toFixed(1) + '%';
+    document.getElementById('bar-c2b').style.width = (c2b / max * 100).toFixed(1) + '%';
+    document.getElementById('bar-amt-c1').textContent  = fmt(c1);
+    document.getElementById('bar-amt-c2a').textContent = fmt(c2a);
+    document.getElementById('bar-amt-c2b').textContent = fmt(c2b);
+  }
+
+  calc();
+</script>
+</body>
+</html>

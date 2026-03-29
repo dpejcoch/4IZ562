@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Egeria Open Metadata Type Model</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:         #080c14;
+    --bg2:        #0d1220;
+    --bg3:        #121929;
+    --border:     #1e2d45;
+    --border2:    #253550;
+    --text:       #c8d8ee;
+    --text-dim:   #5a7399;
+    --text-muted: #3a5070;
+
+    /* Area accent colours */
+    --c0: #4fc3f7;   /* Base */
+    --c1: #81c784;   /* Collaboration */
+    --c2: #ffb74d;   /* Data Assets */
+    --c3: #ce93d8;   /* Glossary */
+    --c4: #ef9a9a;   /* Governance */
+    --c5: #80cbc4;   /* Structures */
+    --c6: #fff176;   /* Discovery */
+    --c7: #f48fb1;   /* Lineage */
+
+    /* Node type colours */
+    --entity:         #56c0f0;
+    --relationship:   #f0a040;
+    --classification: #70d080;
+    --attribute:      #9eb8d8;
+    --enumeration:    #d070d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* ── Header ────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #1a6fe8 0%, #4fc3f7 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 18px; color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px #1a6fe840;
+  }
+
+  .header-text h1 {
+    font-size: 20px; font-weight: 600; color: #e8f4ff;
+    letter-spacing: -0.3px;
+  }
+  .header-text p {
+    font-size: 13px; color: var(--text-dim); margin-top: 2px;
+  }
+
+  .legend {
+    margin-left: auto;
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* ── Controls ──────────────────────────────────────── */
+  .controls {
+    display: flex; gap: 10px; margin-bottom: 20px; align-items: center;
+  }
+  .btn {
+    padding: 6px 14px;
+    font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    background: var(--bg3); border: 1px solid var(--border2);
+    color: var(--text-dim); border-radius: 6px; cursor: pointer;
+    transition: all .15s;
+  }
+  .btn:hover { color: var(--text); border-color: #3a5580; background: #182235; }
+  .search-box {
+    padding: 6px 12px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    background: var(--bg3); border: 1px solid var(--border2);
+    color: var(--text); border-radius: 6px; outline: none;
+    min-width: 220px;
+  }
+  .search-box:focus { border-color: #3a6090; }
+  .search-box::placeholder { color: var(--text-muted); }
+
+  /* ── Tree ──────────────────────────────────────────── */
+  #tree { user-select: none; }
+
+  /* Level 1 – Area */
+  .area-node {
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .area-node:hover { border-color: var(--border2); }
+
+  .area-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    background: var(--bg2);
+    transition: background .15s;
+  }
+  .area-header:hover { background: var(--bg3); }
+
+  .area-stripe {
+    width: 4px; height: 32px; border-radius: 2px; flex-shrink: 0;
+  }
+  .area-label {
+    font-weight: 600; font-size: 14px; color: #e0ecff;
+    flex: 1;
+  }
+  .area-sub {
+    font-size: 11px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: 6px; font-weight: 400;
+  }
+  .area-count {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg); padding: 2px 7px; border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .toggle-btn {
+    width: 22px; height: 22px; border-radius: 5px;
+    border: 1px solid var(--border2);
+    background: var(--bg);
+    color: var(--text-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all .15s;
+    cursor: pointer;
+  }
+  .toggle-btn:hover { border-color: #3a6090; color: var(--text); }
+
+  .area-body { display: none; padding: 10px 14px 14px 14px; }
+  .area-body.open { display: block; }
+
+  /* Level 2 – Model */
+  .model-node {
+    margin-bottom: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .model-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    background: var(--bg);
+    transition: background .15s;
+  }
+  .model-header:hover { background: #0f1827; }
+
+  .model-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px;
+    background: var(--bg3); color: var(--text-dim);
+    border: 1px solid var(--border2); flex-shrink: 0;
+  }
+  .model-label {
+    font-size: 13px; font-weight: 500; color: #cde4ff; flex: 1;
+  }
+  .model-desc {
+    font-size: 11px; color: var(--text-muted); margin-top: 1px;
+  }
+  .model-body { display: none; padding: 8px 10px 10px 28px; }
+  .model-body.open { display: block; }
+
+  /* Level 3 – Entity / Relationship / Classification */
+  .obj-node {
+    margin-bottom: 5px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .obj-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+    background: var(--bg2);
+    transition: background .15s;
+  }
+  .obj-header:hover { background: var(--bg3); }
+
+  .obj-type-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px;
+    flex-shrink: 0; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .badge-entity       { background: #0f2d48; color: var(--entity);         border: 1px solid #1a4d6e; }
+  .badge-relationship { background: #2d1f06; color: var(--relationship);   border: 1px solid #5a3a0a; }
+  .badge-classification { background: #0d2610; color: var(--classification); border: 1px solid #1a4d20; }
+  .badge-enumeration  { background: #250e35; color: var(--enumeration);    border: 1px solid #4a1a60; }
+
+  .obj-name {
+    font-size: 13px; font-weight: 500; color: #ddeeff; flex: 1;
+  }
+  .obj-super {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .obj-super::before { content: '↑ '; }
+
+  .obj-body { display: none; padding: 6px 10px 8px 32px; }
+  .obj-body.open { display: block; }
+  .obj-desc {
+    font-size: 12px; color: var(--text-dim); margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  /* Level 4 – Attributes */
+  .attr-list {
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .attr-item {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .attr-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    color: var(--attribute); flex-shrink: 0; min-width: 160px;
+  }
+  .attr-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-muted);
+    background: var(--bg3); padding: 1px 6px; border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .attr-desc {
+    font-size: 11px; color: var(--text-muted); flex: 1;
+  }
+
+  /* Enum values */
+  .enum-values {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+  }
+  .enum-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--enumeration);
+    background: #1a0a28; border: 1px solid #3a1550;
+    padding: 1px 6px; border-radius: 3px;
+  }
+
+  /* Search highlight */
+  .highlight { background: #2a1a00; border-color: #60400a !important; }
+  .hidden-node { display: none !important; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: #1e3050; border-radius: 3px; }
+
+  /* Footer */
+  footer {
+    margin-top: 32px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--text-muted); text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  footer a { color: #3a6090; text-decoration: none; }
+  footer a:hover { color: #5a90c0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Eg</div>
+  <div class="header-text">
+    <h1>Egeria Open Metadata Type Model</h1>
+    <p>Interactive explorer · Types Areas → Models → Entities / Relationships → Attributes</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--entity)"></div>Entity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--relationship)"></div>Relationship</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--classification)"></div>Classification</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--enumeration)"></div>Enumeration</div>
+  </div>
+</header>
+
+<div class="controls">
+  <input class="search-box" id="search" type="text" placeholder="Search entities, relationships, attributes…">
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+  <button class="btn" onclick="expandLevel(2)">Models Only</button>
+</div>
+
+<div id="tree"></div>
+
+<footer>
+  Source: <a href="https://egeria-project.org/types/" target="_blank">egeria-project.org/types</a> · Open Metadata & Governance · Linux Foundation Project · CC BY 4.0
+</footer>
+
+<script>
+// ──────────────────────────────────────────────────────────
+//  DATA  –  All 8 Type Areas with key Models, Entities,
+//  Relationships, Classifications, and Attributes
+// ──────────────────────────────────────────────────────────
+const MODEL = {
+  areas: [
+  {
+    id: "area0", num: "0", name: "Base", color: "#4fc3f7",
+    desc: "Infrastructure, platform, server and fundamental element types",
+    models: [
+      {
+        id: "m0010", num: "0010", name: "Base Model",
+        desc: "Root entity hierarchy: OpenMetadataRoot → Referenceable → Asset / Infrastructure / Process / DataAsset",
+        objects: [
+          {
+            type: "enumeration", name: "ActivityStatus",
+            desc: "Execution status of a process or activity.",
+            values: ["REQUESTED","APPROVED","WAITING","ACTIVATING","IN_PROGRESS","PAUSED","COMPLETED","INVALID","IGNORED","FAILED","CANCELLED","ABANDONED","OTHER"]
+          },
+          {
+            type: "enumeration", name: "ContentStatus",
+            desc: "Lifecycle states of an authored element.",
+            values: ["DRAFT","PREPARED","PROPOSED","APPROVED","REJECTED","ACTIVE","DEPRECATED","OTHER"]
+          },
+          {
+            type: "enumeration", name: "DeploymentStatus",
+            desc: "Status of digital resources as they are developed, deployed and decommissioned.",
+            values: ["PROPOSED","UNDER_DEVELOPMENT","DEVELOPMENT_COMPLETE","APPROVED_FOR_DEPLOYMENT","STANDBY","ACTIVE","DISABLED","FAILED","OTHER"]
+          },
+          {
+            type: "entity", name: "OpenMetadataRoot", superType: null,
+            desc: "Root entity for all open metadata entity types. Carries system-managed GUID, type name, create/update timestamps and provenance.",
+            attrs: [
+              { name: "guid",            type: "string",   desc: "System-assigned unique identifier" },
+              { name: "typeName",        type: "string",   desc: "The name of the entity's open metadata type" },
+              { name: "createdBy",       type: "string",   desc: "User who created this element" },
+              { name: "createTime",      type: "date",     desc: "When the element was created" },
+              { name: "updatedBy",       type: "string",   desc: "User who last updated this element" },
+              { name: "updateTime",      type: "date",     desc: "When the element was last updated" },
+              { name: "version",         type: "long",     desc: "Auto-incremented version number" },
+              { name: "status",          type: "enum",     desc: "Instance status (ACTIVE, DELETED…)" }
+            ]
+          },
+          {
+            type: "entity", name: "Referenceable", superType: "OpenMetadataRoot",
+            desc: "Super type for elements important enough to carry a unique qualified name, an optional display name, and free-form additional properties.",
+            attrs: [
+              { name: "qualifiedName",       type: "string",   desc: "Unique name across all types" },
+              { name: "identifier",          type: "string",   desc: "Identifier used in external systems" },
+              { name: "displayName",         type: "string",   desc: "Short name for display in UIs" },
+              { name: "description",         type: "string",   desc: "Detailed description" },
+              { name: "category",            type: "string",   desc: "Grouping/classification name" },
+              { name: "url",                 type: "string",   desc: "Link to more information" },
+              { name: "versionIdentifier",   type: "string",   desc: "User-managed version label" },
+              { name: "additionalProperties","type": "map<string,string>", desc: "Name-value pairs for unsupported properties" }
+            ]
+          },
+          {
+            type: "entity", name: "AuthoredReferenceable", superType: "Referenceable",
+            desc: "A Referenceable with optional content lifecycle status.",
+            attrs: [
+              { name: "contentStatus",           type: "ContentStatus", desc: "Lifecycle state (DRAFT→ACTIVE→DEPRECATED)" },
+              { name: "userDefinedContentStatus", type: "string",       desc: "Free-text status when contentStatus=OTHER" }
+            ]
+          },
+          {
+            type: "entity", name: "Asset", superType: "Referenceable",
+            desc: "Describes a physical or digital resource of value that must be managed and governed.",
+            attrs: [
+              { name: "resourceName",             type: "string", desc: "Name of the described resource" },
+              { name: "namespace",                type: "string", desc: "Qualifying path/namespace for the resource" },
+              { name: "deployedImplementationType","type": "string", desc: "Technology class (e.g. PostgreSQL Database)" },
+              { name: "source",                   type: "string", desc: "Supplier / origin organisation" },
+              { name: "userDefinedStatus",        type: "string", desc: "Extended status beyond standard lifecycle" }
+            ]
+          },
+          {
+            type: "entity", name: "Infrastructure", superType: "Asset",
+            desc: "Physical or digital infrastructure the organisation runs its business on.",
+            attrs: [
+              { name: "deploymentStatus",           type: "DeploymentStatus", desc: "Current deployment lifecycle state" },
+              { name: "userDefinedDeploymentStatus","type": "string",         desc: "Extended deployment status" }
+            ]
+          },
+          {
+            type: "entity", name: "Process", superType: "Asset",
+            desc: "An activity performed by a human, team or automated process.",
+            attrs: [
+              { name: "formula",              type: "string",         desc: "Description / logic of the process" },
+              { name: "formulaType",          type: "string",         desc: "Notation language for formula (e.g. SQL, Python)" },
+              { name: "activityStatus",       type: "ActivityStatus", desc: "Current execution state" },
+              { name: "expectedBehaviour",    type: "string",         desc: "Intended action description" },
+              { name: "priority",             type: "int",            desc: "Urgency / priority level" },
+              { name: "requestedStartTime",   type: "date",           desc: "When activity should start" },
+              { name: "startTime",            type: "date",           desc: "Actual start time" },
+              { name: "completionTime",       type: "date",           desc: "Actual completion time" }
+            ]
+          },
+          {
+            type: "entity", name: "DataAsset", superType: "Asset",
+            desc: "A collection of data. Parent of DataStore, DataFeed, DataSet, DeployedAPI etc.",
+            attrs: [
+              { name: "contentStatus",           type: "ContentStatus", desc: "Lifecycle state of the data" },
+              { name: "userDefinedContentStatus","type": "string",      desc: "Extended content status" }
+            ]
+          },
+          {
+            type: "relationship", name: "SampleData",
+            desc: "Links an Asset (sample collection) to the Referenceable it is sampled from.",
+            attrs: [
+              { name: "samplePercentage", type: "float",  desc: "Percentage of data represented" },
+              { name: "sampleDate",       type: "date",   desc: "When the sample was taken" }
+            ]
+          },
+          {
+            type: "classification", name: "Anchors",
+            desc: "Internally managed classification caching the root (anchor) of an element cluster.",
+            attrs: [
+              { name: "anchorGUID",       type: "string", desc: "GUID of the anchor entity" },
+              { name: "anchorTypeName",   type: "string", desc: "Type name of the anchor" },
+              { name: "anchorDomainName", type: "string", desc: "Domain super-type of the anchor" },
+              { name: "anchorScopeGUID",  type: "string", desc: "Scope restricting searches" },
+              { name: "zoneMembership",   type: "list<string>", desc: "Governance zone names" }
+            ]
+          },
+          {
+            type: "classification", name: "Memento",
+            desc: "Marks a Referenceable that refers to a deleted/archived real-world asset, retained for lineage.",
+            attrs: [
+              { name: "archiveDate",    type: "date",   desc: "When the real asset was archived" },
+              { name: "archiveProcess", type: "string", desc: "Process that performed the archiving" },
+              { name: "archiveNote",    type: "string", desc: "Additional notes about the archive" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0026", num: "0026", name: "Endpoints",
+        desc: "Network address information for IT infrastructure.",
+        objects: [
+          {
+            type: "entity", name: "Endpoint", superType: "Referenceable",
+            desc: "The network address of a running piece of IT infrastructure.",
+            attrs: [
+              { name: "name",          type: "string", desc: "Descriptive name for the endpoint" },
+              { name: "networkAddress", type: "string", desc: "Network address (URL, IP:port, etc.)" },
+              { name: "protocol",      type: "string", desc: "Communication protocol" },
+              { name: "encryptionMethod","type": "string", desc: "Encryption method used on the connection" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0040", num: "0040", name: "Software Servers",
+        desc: "Deployable software server types and their capabilities.",
+        objects: [
+          {
+            type: "entity", name: "ITInfrastructure", superType: "Infrastructure",
+            desc: "IT infrastructure that runs IT services.",
+            attrs: [
+              { name: "deployedImplementationType", type: "string", desc: "Class of technology" }
+            ]
+          },
+          {
+            type: "entity", name: "SoftwareServer", superType: "ITInfrastructure",
+            desc: "A software server (process) running on a host.",
+            attrs: [
+              { name: "userId",        type: "string", desc: "Default user account the server runs under" },
+              { name: "serverVersion", type: "string", desc: "Version of the running server software" }
+            ]
+          },
+          {
+            type: "relationship", name: "SoftwareServerDeployment",
+            desc: "Links a SoftwareServer to the host/platform it runs on.",
+            attrs: [
+              { name: "deploymentTime",  type: "date",   desc: "When the server was deployed" },
+              { name: "deployerUserId",  type: "string", desc: "User who performed the deployment" },
+              { name: "serverCapabilityStatus","type":"enum","desc":"Status of server at deployment" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area1", num: "1", name: "Collaboration", color: "#81c784",
+    desc: "People, teams, roles, communities and collaborative interactions",
+    models: [
+      {
+        id: "m0110", num: "0110", name: "Actors",
+        desc: "Abstract ActorProfile type – parent of PersonalProfile and ITProfile.",
+        objects: [
+          {
+            type: "entity", name: "ActorProfile", superType: "Referenceable",
+            desc: "Abstract root for entities that represent participants in the metadata ecosystem.",
+            attrs: [
+              { name: "name",        type: "string", desc: "Name of the actor" },
+              { name: "description", type: "string", desc: "Description of the actor" },
+              { name: "pronouns",    type: "string", desc: "Personal pronouns (for people)" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0112", num: "0112", name: "People",
+        desc: "Individual people and their contact details.",
+        objects: [
+          {
+            type: "entity", name: "PersonalProfile", superType: "ActorProfile",
+            desc: "Profile of a real individual person.",
+            attrs: [
+              { name: "fullName",       type: "string", desc: "Legal full name" },
+              { name: "jobTitle",       type: "string", desc: "Job title / role in the organisation" },
+              { name: "employeeNumber", type: "string", desc: "Employee identifier in HR system" },
+              { name: "employeeType",   type: "string", desc: "Employment type (permanent, contractor…)" },
+              { name: "preferredLanguage","type":"string","desc":"Preferred display language" }
+            ]
+          },
+          {
+            type: "entity", name: "ContactDetails", superType: "Referenceable",
+            desc: "Contact information for a person (email, phone, etc.).",
+            attrs: [
+              { name: "contactMethodType",  type: "enum",   desc: "Type of contact (EMAIL, PHONE, SLACK…)" },
+              { name: "contactMethodValue", type: "string", desc: "The actual address / number" },
+              { name: "contactType",        type: "string", desc: "e.g. work, personal" }
+            ]
+          },
+          {
+            type: "relationship", name: "ContactThrough",
+            desc: "Links a PersonalProfile to its ContactDetails.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0115", num: "0115", name: "Teams",
+        desc: "Organisational teams and their hierarchical structure.",
+        objects: [
+          {
+            type: "entity", name: "Team", superType: "ActorProfile",
+            desc: "A group of people organised to work together.",
+            attrs: [
+              { name: "teamType",  type: "string", desc: "Classification of team (e.g. Department, Squad)" },
+              { name: "identifier","type":"string","desc":"Team identifier used in HR/ITSM systems" }
+            ]
+          },
+          {
+            type: "relationship", name: "TeamStructure",
+            desc: "Links a parent Team to a sub-team establishing a hierarchy.",
+            attrs: [
+              { name: "delegationEscalationAuthority","type":"boolean","desc":"Sub-team can escalate to parent" }
+            ]
+          },
+          {
+            type: "relationship", name: "TeamMembership",
+            desc: "Links a PersonalProfile to a Team they belong to.",
+            attrs: [
+              { name: "membershipType","type":"string","desc":"Role within the team (leader, member…)" },
+              { name: "position",      "type":"string","desc":"Position/title within the team" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0130", num: "0130", name: "Projects",
+        desc: "Projects and work initiatives tracked in the metadata ecosystem.",
+        objects: [
+          {
+            type: "entity", name: "Project", superType: "Referenceable",
+            desc: "An organized piece of work with a defined start and end.",
+            attrs: [
+              { name: "name",        type: "string", desc: "Project name" },
+              { name: "description", type: "string", desc: "Project description" },
+              { name: "startDate",   type: "date",   desc: "Project start date" },
+              { name: "plannedEndDate","type":"date","desc":"Planned completion date" },
+              { name: "status",      type: "string", desc: "Current status of the project" },
+              { name: "priority",    type: "int",    desc: "Priority of the project" }
+            ]
+          },
+          {
+            type: "relationship", name: "ProjectManagement",
+            desc: "Identifies the project manager for a project.",
+            attrs: []
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area2", num: "2", name: "Data Assets", color: "#ffb74d",
+    desc: "Data stores, connections, APIs, files, databases, reports and analytics assets",
+    models: [
+      {
+        id: "m0201", num: "0201", name: "Connectors and Connections",
+        desc: "Configuration for OCF connectors that access IT infrastructure endpoints.",
+        objects: [
+          {
+            type: "entity", name: "Connection", superType: "Referenceable",
+            desc: "Configuration for the OCF ConnectorBroker to instantiate a connector to an endpoint.",
+            attrs: [
+              { name: "displayName",        type: "string", desc: "Friendly name for this connection" },
+              { name: "description",        type: "string", desc: "Description of the connection" },
+              { name: "securedProperties",  type: "map<string,object>", desc: "Encrypted auth properties (userId, password…)" },
+              { name: "configurationProperties","type":"map<string,object>","desc":"Additional connector config" },
+              { name: "userId",             type: "string", desc: "Default user identity for this connection" },
+              { name: "clearPassword",      type: "string", desc: "Unencrypted password (for test environments)" },
+              { name: "encryptedPassword",  type: "string", desc: "Encrypted password" }
+            ]
+          },
+          {
+            type: "entity", name: "ConnectorType", superType: "Referenceable",
+            desc: "Identifies the Java/Python class that implements the connector.",
+            attrs: [
+              { name: "supportedAssetTypeName",    type: "string",       desc: "Type of asset this connector supports" },
+              { name: "expectedDataFormat",        type: "string",       desc: "Expected format of the data" },
+              { name: "connectorProviderClassName","type":"string",       desc: "Fully-qualified class name of connector provider" },
+              { name: "connectorFrameworkName",    type: "string",       desc: "Framework (OCF, JDBC, ...)" },
+              { name: "connectorInterfaceLanguage","type":"string",       desc: "Implementation language" },
+              { name: "connectorInterfaces",       type: "list<string>", desc: "Supported interfaces" },
+              { name: "recognizedAdditionalProperties","type":"list<string>","desc":"Understood extra properties" }
+            ]
+          },
+          {
+            type: "relationship", name: "ConnectionConnectorType",
+            desc: "Links a Connection to its ConnectorType implementation.",
+            attrs: []
+          },
+          {
+            type: "relationship", name: "ConnectToEndpoint",
+            desc: "Links a Connection to the Endpoint it targets.",
+            attrs: [
+              { name: "encryptedPassword","type":"string","desc":"Override encrypted password for this endpoint" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0210", num: "0210", name: "Data Stores",
+        desc: "Physical data stores and in-memory data collections.",
+        objects: [
+          {
+            type: "entity", name: "DataStore", superType: "DataAsset",
+            desc: "A physical persistent data store (files, databases, object stores).",
+            attrs: [
+              { name: "createTime",         type: "date",   desc: "When the store was created" },
+              { name: "modifiedTime",       type: "date",   desc: "When the store was last modified" },
+              { name: "encodingType",       type: "string", desc: "Encoding of the data (UTF-8, etc.)" },
+              { name: "encodingLanguage",   type: "string", desc: "Language of the data content" },
+              { name: "encodingDescription","type":"string","desc":"Description of the encoding" },
+              { name: "encodingProperties", "type":"map<string,string>","desc":"Additional encoding details" }
+            ]
+          },
+          {
+            type: "entity", name: "DataSet", superType: "DataAsset",
+            desc: "A logical collection of data – may be a view over multiple stores.",
+            attrs: [
+              { name: "formula",     type: "string", desc: "Expression describing how the set is derived" },
+              { name: "formulaType", type: "string", desc: "Language / notation of the formula" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0224", num: "0224", name: "Databases",
+        desc: "Relational and non-relational database types.",
+        objects: [
+          {
+            type: "entity", name: "Database", superType: "DataStore",
+            desc: "A managed collection of structured data.",
+            attrs: [
+              { name: "databaseVersion",  type: "string", desc: "Version of the database product" },
+              { name: "databaseInstance", type: "string", desc: "Instance identifier" },
+              { name: "databaseImportedFrom","type":"string","desc":"Origin if migrated/imported" }
+            ]
+          },
+          {
+            type: "entity", name: "RelationalDatabase", superType: "Database",
+            desc: "A database supporting SQL and relational operations.",
+            attrs: []
+          },
+          {
+            type: "entity", name: "DatabaseSchema", superType: "DataSet",
+            desc: "A schema within a relational database.",
+            attrs: []
+          },
+          {
+            type: "relationship", name: "DataContentForDataSet",
+            desc: "Links a DataStore to a DataSet that uses content from it.",
+            attrs: [
+              { name: "queryId",    type: "string", desc: "Identifier for the query" },
+              { name: "query",      type: "string", desc: "Query/expression selecting the content" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0212", num: "0212", name: "Deployed APIs",
+        desc: "API endpoints deployed on software servers.",
+        objects: [
+          {
+            type: "entity", name: "DeployedAPI", superType: "DataAsset",
+            desc: "An API endpoint deployed on a software server.",
+            attrs: []
+          },
+          {
+            type: "relationship", name: "APIEndpoint",
+            desc: "Links a DeployedAPI to its Connection/Endpoint details.",
+            attrs: []
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area3", num: "3", name: "Glossary", color: "#ce93d8",
+    desc: "Business glossaries, terms, dictionaries, contexts and semantic assignments",
+    models: [
+      {
+        id: "m0310", num: "0310", name: "Glossary",
+        desc: "The top-level glossary container and its scope.",
+        objects: [
+          {
+            type: "entity", name: "Glossary", superType: "AuthoredReferenceable",
+            desc: "A collection of related business terms managed together.",
+            attrs: [
+              { name: "displayName", type: "string", desc: "Name shown in UIs" },
+              { name: "description", type: "string", desc: "Purpose/scope of the glossary" },
+              { name: "language",    type: "string", desc: "Primary language of the glossary" },
+              { name: "usage",       type: "string", desc: "Guidance on how to use this glossary" }
+            ]
+          },
+          {
+            type: "entity", name: "GlossaryCategory", superType: "AuthoredReferenceable",
+            desc: "A category used to group related glossary terms.",
+            attrs: [
+              { name: "displayName", type: "string", desc: "Category name" },
+              { name: "description", type: "string", desc: "Description of the category" }
+            ]
+          },
+          {
+            type: "relationship", name: "GlossaryTermInContext",
+            desc: "Associates a GlossaryTerm with a GlossaryCategory.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0330", num: "0330", name: "Glossary Terms",
+        desc: "Individual business terms with full semantic descriptions.",
+        objects: [
+          {
+            type: "entity", name: "GlossaryTerm", superType: "AuthoredReferenceable",
+            desc: "A single business term or concept with its definition.",
+            attrs: [
+              { name: "displayName",     type: "string",  desc: "Name shown in UIs" },
+              { name: "summary",         type: "string",  desc: "Brief one-line definition" },
+              { name: "description",     type: "string",  desc: "Full definition" },
+              { name: "examples",        type: "string",  desc: "Usage examples" },
+              { name: "abbreviation",    type: "string",  desc: "Common abbreviation" },
+              { name: "usage",           type: "string",  desc: "Guidance on correct usage" },
+              { name: "isSpineObject",   type: "boolean", desc: "Whether this is a top-level entity concept" },
+              { name: "isSpineAttribute","type":"boolean","desc":"Whether this is an attribute concept" },
+              { name: "isObjectIdentifier","type":"boolean","desc":"Whether this acts as an identifier" }
+            ]
+          },
+          {
+            type: "relationship", name: "TermAnchor",
+            desc: "Links a GlossaryTerm to its parent Glossary.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0370", num: "0370", name: "Semantic Assignment",
+        desc: "Links data assets and schema elements to their governing glossary terms.",
+        objects: [
+          {
+            type: "relationship", name: "SemanticAssignment",
+            desc: "Assigns a GlossaryTerm to a Referenceable (schema element, asset, etc.) to define its business meaning.",
+            attrs: [
+              { name: "description",       type: "string", desc: "Explanation of why this term applies" },
+              { name: "expression",        type: "string", desc: "Formula / expression" },
+              { name: "status",            type: "enum",   desc: "Status of the assignment (PROPOSED, ACTIVE…)" },
+              { name: "confidence",        type: "int",    desc: "Confidence in the assignment (0-100)" },
+              { name: "steward",           type: "string", desc: "Person who approved the assignment" },
+              { name: "stewardTypeName",   type: "string", desc: "Type of the steward entity" },
+              { name: "stewardPropertyName","type":"string","desc":"Property on steward entity" },
+              { name: "source",            type: "string", desc: "Where the assignment came from" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0350", num: "0350", name: "Related Terms",
+        desc: "Relationships expressing semantic connections between glossary terms.",
+        objects: [
+          {
+            type: "relationship", name: "Synonym",        desc: "Two terms that mean the same thing.",               attrs: [] },
+          {
+            type: "relationship", name: "Antonym",        desc: "Two terms that mean the opposite.",                 attrs: [] },
+          {
+            type: "relationship", name: "PreferredTerm",  desc: "Marks which of two synonyms is the preferred one.", attrs: [] },
+          {
+            type: "relationship", name: "ReplacementTerm",desc: "A term that replaces a deprecated term.",           attrs: [] },
+          {
+            type: "relationship", name: "ISARelationship",desc: "Expresses an 'is a' (subtype) relationship.",       attrs: [] }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area4", num: "4", name: "Governance", color: "#ef9a9a",
+    desc: "Governance definitions, policies, controls, zones, roles, certifications and compliance",
+    models: [
+      {
+        id: "m0401", num: "0401", name: "Governance Definitions",
+        desc: "Root hierarchy of all governance policy and obligation elements.",
+        objects: [
+          {
+            type: "entity", name: "GovernanceDefinition", superType: "Referenceable",
+            desc: "Abstract root for all governance elements (policies, rules, obligations, principles, approaches).",
+            attrs: [
+              { name: "title",         type: "string", desc: "Short title for the definition" },
+              { name: "summary",       type: "string", desc: "Brief description" },
+              { name: "description",   type: "string", desc: "Full description" },
+              { name: "scope",         type: "string", desc: "Scope of applicability" },
+              { name: "domain",        type: "string", desc: "Governance domain (DATA, PRIVACY, SECURITY…)" },
+              { name: "domainIdentifier","type":"int", desc: "Numeric identifier of the domain" },
+              { name: "implications",  type: "string", desc: "What this definition means for the organisation" },
+              { name: "outcomes",      type: "string", desc: "Expected outcomes when followed" },
+              { name: "results",       type: "string", desc: "Actual results observed" },
+              { name: "priority",      type: "string", desc: "Relative priority" }
+            ]
+          },
+          {
+            type: "relationship", name: "GovernanceDefinitionScope",
+            desc: "Links a GovernanceDefinition to the Referenceable elements it governs.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0424", num: "0424", name: "Governance Zones",
+        desc: "Named security/governance zones for grouping assets.",
+        objects: [
+          {
+            type: "entity", name: "GovernanceZone", superType: "Referenceable",
+            desc: "A named zone used to group assets for access control and governance purposes.",
+            attrs: [
+              { name: "displayName",    type: "string",       desc: "Zone display name" },
+              { name: "description",    type: "string",       desc: "What assets belong in this zone" },
+              { name: "subjectArea",    type: "string",       desc: "Subject area this zone relates to" },
+              { name: "criteria",       type: "string",       desc: "Criteria for placing an asset in this zone" },
+              { name: "scope",          type: "string",       desc: "Business scope of the zone" }
+            ]
+          },
+          {
+            type: "classification", name: "GovernanceZoneMembership",
+            desc: "Applied to an Asset to list the governance zones it belongs to.",
+            attrs: [
+              { name: "zoneMembership", type: "list<string>", desc: "List of zone names" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0445", num: "0445", name: "Governance Roles",
+        desc: "Stewardship and ownership roles assigned to governance elements.",
+        objects: [
+          {
+            type: "entity", name: "GovernanceRole", superType: "Referenceable",
+            desc: "A role within the governance programme (DataOwner, DataSteward, etc.).",
+            attrs: [
+              { name: "domainIdentifier","type":"int",    desc: "Governance domain this role belongs to" },
+              { name: "title",           type: "string",  desc: "Role title" },
+              { name: "description",     type: "string",  desc: "Role description" },
+              { name: "scope",           type: "string",  desc: "Scope of the role's authority" },
+              { name: "headCount",       type: "int",     desc: "Number of people filling this role" }
+            ]
+          },
+          {
+            type: "relationship", name: "GovernanceRoleAssignment",
+            desc: "Assigns a PersonalProfile to a GovernanceRole.",
+            attrs: [
+              { name: "startDate", type: "date", desc: "When the person took on the role" },
+              { name: "endDate",   type: "date", desc: "When the person stopped filling the role" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0482", num: "0482", name: "Certifications",
+        desc: "Certifications applied to elements to show compliance status.",
+        objects: [
+          {
+            type: "entity", name: "CertificationType", superType: "GovernanceDefinition",
+            desc: "Defines a specific certification that can be granted to assets or people.",
+            attrs: [
+              { name: "details", type: "string", desc: "Certification requirements and criteria" }
+            ]
+          },
+          {
+            type: "relationship", name: "Certification",
+            desc: "Records that a Referenceable element has been granted a CertificationType.",
+            attrs: [
+              { name: "certificateGUID",  type: "string", desc: "GUID of the actual certificate" },
+              { name: "start",            type: "date",   desc: "Certification start date" },
+              { name: "end",              type: "date",   desc: "Certification expiry date" },
+              { name: "conditions",       type: "string", desc: "Conditions attached to the certification" },
+              { name: "certifiedBy",      type: "string", desc: "User who certified the element" },
+              { name: "notes",            type: "string", desc: "Additional notes" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area5", num: "5", name: "Structures", color: "#80cbc4",
+    desc: "Schema elements, attributes, relational/document/event/API schemas, data classes, metamodels",
+    models: [
+      {
+        id: "m0501", num: "0501", name: "Schema Elements",
+        desc: "Abstract root type for all schema types and structures.",
+        objects: [
+          {
+            type: "entity", name: "SchemaElement", superType: "Referenceable",
+            desc: "Abstract root for all schema types.",
+            attrs: [
+              { name: "isDeprecated",      type: "boolean", desc: "Whether this schema element is deprecated" },
+              { name: "displayName",       type: "string",  desc: "Short display name" },
+              { name: "description",       type: "string",  desc: "Description of the schema element" },
+              { name: "anchorGUID",        type: "string",  desc: "GUID of the owning asset" }
+            ]
+          },
+          {
+            type: "entity", name: "SchemaType", superType: "SchemaElement",
+            desc: "Describes the structure of a collection of data values.",
+            attrs: [
+              { name: "versionNumber",   type: "string",  desc: "Version of the schema type" },
+              { name: "author",          type: "string",  desc: "Creator of the schema type" },
+              { name: "usage",           type: "string",  desc: "How this schema type should be used" },
+              { name: "encodingStandard","type":"string",  desc: "Encoding standard (JSON, XML, Avro…)" },
+              { name: "namespace",       type: "string",  desc: "Namespace for the schema type" },
+              { name: "formula",         type: "string",  desc: "Derivation formula for derived types" }
+            ]
+          },
+          {
+            type: "relationship", name: "AssetSchemaType",
+            desc: "Links an Asset to its root SchemaType.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0505", num: "0505", name: "Schema Attributes",
+        desc: "Individual fields/columns within a schema type.",
+        objects: [
+          {
+            type: "entity", name: "SchemaAttribute", superType: "SchemaElement",
+            desc: "A single attribute / field / column within a schema.",
+            attrs: [
+              { name: "elementPosition",  type: "int",     desc: "Order of this attribute in the schema" },
+              { name: "minCardinality",   type: "int",     desc: "Minimum number of occurrences" },
+              { name: "maxCardinality",   type: "int",     desc: "Maximum number of occurrences (-1=unbounded)" },
+              { name: "allowsDuplicateValues","type":"boolean","desc":"Whether duplicate values are allowed" },
+              { name: "orderedValues",    type: "boolean", desc: "Whether values are ordered" },
+              { name: "sortOrder",        type: "enum",    desc: "Sort order (ASCENDING, DESCENDING, UNSORTED)" },
+              { name: "minimumLength",    type: "int",     desc: "Minimum length for string values" },
+              { name: "length",           type: "int",     desc: "Maximum length for string values" },
+              { name: "precision",        type: "int",     desc: "Precision for numeric values" },
+              { name: "isNullable",       type: "boolean", desc: "Whether the attribute can be null" },
+              { name: "isUnique",         type: "boolean", desc: "Whether the value is unique across instances" },
+              { name: "defaultValueOverride","type":"string","desc":"Default value if not set" },
+              { name: "nativeJavaClass",  type: "string",  desc: "Java class for this attribute's type" },
+              { name: "aliases",          type: "list<string>","desc":"Alternative names for this attribute" }
+            ]
+          },
+          {
+            type: "relationship", name: "TypeEmbeddedAttribute",
+            desc: "Links a SchemaType to its nested SchemaAttributes.",
+            attrs: [
+              { name: "position",     type: "int",    desc: "Position of the attribute" },
+              { name: "minCardinality","type":"int",  desc: "Min occurrences" },
+              { name: "maxCardinality","type":"int",  desc: "Max occurrences" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0534", num: "0534", name: "Relational Schemas",
+        desc: "Tables, columns and foreign key relationships in relational databases.",
+        objects: [
+          {
+            type: "entity", name: "RelationalDBSchemaType", superType: "SchemaType",
+            desc: "The schema of a relational database (collection of tables).",
+            attrs: []
+          },
+          {
+            type: "entity", name: "RelationalTableType", superType: "SchemaType",
+            desc: "The type definition of a relational table.",
+            attrs: []
+          },
+          {
+            type: "entity", name: "RelationalTable", superType: "SchemaAttribute",
+            desc: "A table within a relational database schema.",
+            attrs: [
+              { name: "isDeprecated", type: "boolean", desc: "Whether this table is deprecated" },
+              { name: "aliases",      type: "list<string>", desc: "Alternative names" }
+            ]
+          },
+          {
+            type: "entity", name: "RelationalColumn", superType: "SchemaAttribute",
+            desc: "A column within a relational table.",
+            attrs: [
+              { name: "isDeprecated",   type: "boolean", desc: "Whether this column is deprecated" },
+              { name: "minimumLength",  type: "int",     desc: "Minimum length" },
+              { name: "length",         type: "int",     desc: "Maximum length" },
+              { name: "precision",      type: "int",     desc: "Numeric precision" },
+              { name: "isNullable",     type: "boolean", desc: "Nullable flag" },
+              { name: "isUnique",       type: "boolean", desc: "Uniqueness constraint" }
+            ]
+          },
+          {
+            type: "relationship", name: "ForeignKey",
+            desc: "Links a RelationalColumn to the primary key column it references.",
+            attrs: [
+              { name: "name",        type: "string",  desc: "Constraint name" },
+              { name: "description", type: "string",  desc: "Description of the relationship" },
+              { name: "confidence",  type: "int",     desc: "Confidence that this FK is correct (0-100)" }
+            ]
+          },
+          {
+            type: "classification", name: "PrimaryKey",
+            desc: "Marks a RelationalColumn as (part of) the primary key.",
+            attrs: [
+              { name: "name",     type: "string", desc: "Constraint name" },
+              { name: "keyPattern","type":"enum", desc: "Pattern (LOCAL, AGGREGATE, CALLERS_KEY…)" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area6", num: "6", name: "Metadata Discovery", color: "#fff176",
+    desc: "Automated survey and annotation of metadata assets",
+    models: [
+      {
+        id: "m0603", num: "0603", name: "Survey Reports",
+        desc: "Results of automated surveys on digital resources.",
+        objects: [
+          {
+            type: "entity", name: "SurveyReport", superType: "Referenceable",
+            desc: "The report produced by a survey action service when it surveys a digital resource.",
+            attrs: [
+              { name: "displayName",      type: "string", desc: "Report title" },
+              { name: "description",      type: "string", desc: "Summary of the survey" },
+              { name: "purpose",          type: "string", desc: "Why the survey was run" },
+              { name: "startDate",        type: "date",   desc: "When the survey started" },
+              { name: "completionDate",   type: "date",   desc: "When the survey completed" },
+              { name: "completionMessage","type":"string","desc":"Result summary message" }
+            ]
+          },
+          {
+            type: "relationship", name: "AssetSurveyReport",
+            desc: "Links a SurveyReport to the Asset it describes.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0610", num: "0610", name: "Annotations",
+        desc: "Individual findings attached to a survey report.",
+        objects: [
+          {
+            type: "entity", name: "Annotation", superType: "OpenMetadataRoot",
+            desc: "A single finding from a survey action service.",
+            attrs: [
+              { name: "annotationType",    type: "string",       desc: "Type/category of annotation" },
+              { name: "summary",           type: "string",       desc: "Brief description of the finding" },
+              { name: "confidence",        type: "int",          desc: "Confidence level (0-100)" },
+              { name: "expression",        type: "string",       desc: "Relevant expression/formula" },
+              { name: "explanation",       type: "string",       desc: "Detailed explanation" },
+              { name: "analysisStep",      type: "string",       desc: "Step in the analysis that produced this" },
+              { name: "jsonProperties",    type: "string",       desc: "Additional properties in JSON" },
+              { name: "additionalProperties","type":"map<string,string>","desc":"Extra name-value properties" }
+            ]
+          },
+          {
+            type: "entity", name: "DataProfileAnnotation", superType: "Annotation",
+            desc: "Statistical profile of a data field.",
+            attrs: [
+              { name: "length",         type: "int",    desc: "Typical length of values" },
+              { name: "inferredDataType","type":"string","desc":"Inferred data type" },
+              { name: "inferredFormat", type: "string", desc: "Inferred format pattern" },
+              { name: "inferredLength", type: "int",    desc: "Inferred maximum length" },
+              { name: "dataPattern",    type: "string", desc: "Identified data pattern" },
+              { name: "sampleValues",   type: "list<string>","desc":"Sample values found" }
+            ]
+          },
+          {
+            type: "entity", name: "QualityAnnotation", superType: "Annotation",
+            desc: "Data quality scores for a field or dataset.",
+            attrs: [
+              { name: "qualityDimension","type":"string","desc":"Quality dimension measured (completeness, accuracy…)" },
+              { name: "qualityScore",    type: "int",   desc: "Quality score (0-100)" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "m0625", num: "0625", name: "Data Class Discovery",
+        desc: "Discovered semantic data class assignments for fields.",
+        objects: [
+          {
+            type: "entity", name: "DataClassAnnotation", superType: "Annotation",
+            desc: "Records the discovered data class for a field (e.g. PostalCode, SocialSecurityNumber).",
+            attrs: [
+              { name: "candidateDataClassGUIDs","type":"list<string>","desc":"GUIDs of matching DataClass entities" },
+              { name: "matchingValues",         "type":"long",        "desc":"Number of matching values" },
+              { name: "nonMatchingValues",       "type":"long",       "desc":"Number of non-matching values" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "area7", num: "7", name: "Lineage", color: "#f48fb1",
+    desc: "Digital products, information supply chains, solution blueprints and data lineage",
+    models: [
+      {
+        id: "m0710", num: "0710", name: "Digital Products",
+        desc: "Digital products exposed through the data marketplace.",
+        objects: [
+          {
+            type: "entity", name: "DigitalProduct", superType: "Referenceable",
+            desc: "A data or analytics product offered through the data marketplace.",
+            attrs: [
+              { name: "productName",        type: "string",         desc: "Name of the digital product" },
+              { name: "productType",        type: "string",         desc: "Type (Dataset, API, Report, Model…)" },
+              { name: "description",        type: "string",         desc: "Product description" },
+              { name: "introductionDate",   type: "date",           desc: "When the product became available" },
+              { name: "maturity",           type: "string",         desc: "Maturity level (Draft, Pilot, Production)" },
+              { name: "deploymentStatus",   type: "DeploymentStatus","desc":"Current deployment state" },
+              { name: "serviceLife",        type: "string",         desc: "Expected service life" },
+              { name: "currentVersion",     type: "string",         desc: "Current version identifier" },
+              { name: "nextVersionDate",    type: "date",           desc: "Planned next version date" },
+              { name: "withdrawDate",       type: "date",           desc: "Planned withdrawal date" },
+              { name: "additionalProperties","type":"map<string,string>","desc":"Extended properties" }
+            ]
+          },
+          {
+            type: "relationship", name: "DigitalProductManagement",
+            desc: "Links a DigitalProduct to the PersonalProfile of its product manager.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0720", num: "0720", name: "Information Supply Chains",
+        desc: "End-to-end information flows between systems.",
+        objects: [
+          {
+            type: "entity", name: "InformationSupplyChain", superType: "Referenceable",
+            desc: "An end-to-end information flow, typically spanning multiple systems and processes.",
+            attrs: [
+              { name: "displayName",    type: "string",       desc: "Name of the supply chain" },
+              { name: "description",    type: "string",       desc: "Purpose of the supply chain" },
+              { name: "scope",          type: "string",       desc: "Scope/boundary of the supply chain" },
+              { name: "purposes",       type: "list<string>", desc: "Business purposes the chain serves" }
+            ]
+          },
+          {
+            type: "entity", name: "InformationSupplyChainSegment", superType: "Referenceable",
+            desc: "A segment of an information supply chain.",
+            attrs: [
+              { name: "displayName", type: "string", desc: "Segment name" },
+              { name: "description", type: "string", desc: "Segment description" },
+              { name: "scope",       type: "string", desc: "Scope of this segment" },
+              { name: "integration", type: "string", desc: "Integration pattern used" }
+            ]
+          },
+          {
+            type: "relationship", name: "InformationSupplyChainComposition",
+            desc: "Links an InformationSupplyChain to its component segments.",
+            attrs: []
+          }
+        ]
+      },
+      {
+        id: "m0770", num: "0770", name: "Lineage Mapping",
+        desc: "Fine-grained column-level and element-level lineage links.",
+        objects: [
+          {
+            type: "relationship", name: "LineageMapping",
+            desc: "Links a source Referenceable to a downstream Referenceable showing a lineage connection.",
+            attrs: [
+              { name: "label",       type: "string", desc: "Short description of the mapping" },
+              { name: "description", type: "string", desc: "Detailed description" }
+            ]
+          },
+          {
+            type: "relationship", name: "UltimateSource",
+            desc: "Links an element directly to its ultimate upstream source (bypassing intermediate steps).",
+            attrs: []
+          },
+          {
+            type: "relationship", name: "UltimateDestination",
+            desc: "Links an element to its ultimate downstream destination.",
+            attrs: []
+          }
+        ]
+      }
+    ]
+  }
+  ]
+};
+
+
+// ──────────────────────────────────────────────────────────
+//  RENDERER
+// ──────────────────────────────────────────────────────────
+function badgeClass(type) {
+  return `badge-${type}`;
+}
+
+function renderAttrs(attrs) {
+  if (!attrs || !attrs.length) return '<p style="font-size:11px;color:var(--text-muted);padding:4px 0">No attributes defined</p>';
+  return `<div class="attr-list">${attrs.map(a => `
+    <div class="attr-item">
+      <span class="attr-name">${a.name}</span>
+      <span class="attr-type">${a.type}</span>
+      <span class="attr-desc">${a.desc}</span>
+    </div>`).join('')}</div>`;
+}
+
+function renderEnumValues(vals) {
+  if (!vals || !vals.length) return '';
+  return `<div class="enum-values">${vals.map(v=>`<span class="enum-val">${v}</span>`).join('')}</div>`;
+}
+
+function renderObject(obj, areaIdx) {
+  const id = `obj-${Math.random().toString(36).slice(2)}`;
+  const superText = obj.superType ? `<span class="obj-super">${obj.superType}</span>` : '';
+  const body = obj.type === 'enumeration'
+    ? `<div class="obj-desc">${obj.desc}</div>${renderEnumValues(obj.values)}`
+    : `<div class="obj-desc">${obj.desc}</div>${renderAttrs(obj.attrs)}`;
+
+  return `
+  <div class="obj-node" id="${id}">
+    <div class="obj-header" onclick="toggle('${id}')">
+      <span class="obj-type-badge ${badgeClass(obj.type)}">${obj.type}</span>
+      <span class="obj-name">${obj.name}</span>
+      ${superText}
+      <span class="toggle-btn">+</span>
+    </div>
+    <div class="obj-body">
+      ${body}
+    </div>
+  </div>`;
+}
+
+function renderModel(model) {
+  const id = `model-${model.id}`;
+  const cnt = model.objects.length;
+  return `
+  <div class="model-node" id="${id}">
+    <div class="model-header" onclick="toggle('${id}')">
+      <span class="model-num">${model.num}</span>
+      <div style="flex:1">
+        <div class="model-label">${model.name}</div>
+        <div class="model-desc">${model.desc}</div>
+      </div>
+      <span class="area-count">${cnt} types</span>
+      <span class="toggle-btn">+</span>
+    </div>
+    <div class="model-body">
+      ${model.objects.map(o => renderObject(o)).join('')}
+    </div>
+  </div>`;
+}
+
+function renderArea(area) {
+  const id = `area-${area.id}`;
+  const totalTypes = area.models.reduce((s, m) => s + m.objects.length, 0);
+  return `
+  <div class="area-node" id="${id}">
+    <div class="area-header" onclick="toggle('${id}')">
+      <div class="area-stripe" style="background:${area.color}"></div>
+      <span class="area-label">Area ${area.num} — ${area.name}</span>
+      <span class="area-sub">${area.desc}</span>
+      <span class="area-count">${area.models.length} models · ${totalTypes} types</span>
+      <span class="toggle-btn">+</span>
+    </div>
+    <div class="area-body">
+      ${area.models.map(m => renderModel(m)).join('')}
+    </div>
+  </div>`;
+}
+
+function build() {
+  document.getElementById('tree').innerHTML = MODEL.areas.map(renderArea).join('');
+}
+
+// ──────────────────────────────────────────────────────────
+//  TOGGLE
+// ──────────────────────────────────────────────────────────
+function toggle(id) {
+  const node = document.getElementById(id);
+  if (!node) return;
+  const isArea  = node.classList.contains('area-node');
+  const isModel = node.classList.contains('model-node');
+  const isObj   = node.classList.contains('obj-node');
+  const bodyClass = isArea ? 'area-body' : isModel ? 'model-body' : 'obj-body';
+  const body = node.querySelector('.' + bodyClass);
+  const btn  = node.querySelector('.toggle-btn');
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  btn.textContent = open ? '−' : '+';
+}
+
+function expandAll() {
+  document.querySelectorAll('.area-body,.model-body,.obj-body').forEach(b => b.classList.add('open'));
+  document.querySelectorAll('.toggle-btn').forEach(b => b.textContent = '−');
+}
+function collapseAll() {
+  document.querySelectorAll('.area-body,.model-body,.obj-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.toggle-btn').forEach(b => b.textContent = '+');
+}
+function expandLevel(lvl) {
+  collapseAll();
+  if (lvl >= 1) {
+    document.querySelectorAll('.area-body').forEach(b => b.classList.add('open'));
+    document.querySelectorAll('.area-node .toggle-btn').forEach(b => b.textContent = '−');
+  }
+  if (lvl >= 2) {
+    document.querySelectorAll('.model-body').forEach(b => b.classList.add('open'));
+    document.querySelectorAll('.model-node .toggle-btn').forEach(b => b.textContent = '−');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+//  SEARCH
+// ──────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    document.querySelectorAll('.hidden-node,.highlight').forEach(el => {
+      el.classList.remove('hidden-node','highlight');
+    });
+    return;
+  }
+
+  // Reset
+  document.querySelectorAll('.area-node,.model-node,.obj-node,.attr-item').forEach(el => {
+    el.classList.remove('hidden-node','highlight');
+  });
+
+  document.querySelectorAll('.obj-node').forEach(obj => {
+    const text = obj.textContent.toLowerCase();
+    if (text.includes(q)) {
+      obj.classList.add('highlight');
+      // ensure parent model + area open
+      let p = obj.parentElement;
+      while (p) {
+        if (p.classList.contains('model-body') || p.classList.contains('area-body') || p.classList.contains('obj-body')) {
+          p.classList.add('open');
+          const btn = p.parentElement.querySelector('.toggle-btn');
+          if (btn) btn.textContent = '−';
+        }
+        p = p.parentElement;
+      }
+    }
+  });
+});
+
+// Init
+build();
+</script>
+</body>
+</html>

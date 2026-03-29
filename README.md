@@ -97,6 +97,15 @@
 * Prezentace k přednáškám
 * Články výslovně zmíněné přednášejícím
 
+### Přilinkované dokumenty a tutoriály
+
+* [Konfigurace MySQL MCP Server s Claude Desktop](MySQL_MCP_Claude.pdf)
+* [Egeria Project klasifikace metadat](egeria_metadata_model.html)
+* [Článek IT Assurance Guide - díl 1.](papers/ITAG_part_1.pdf)
+* [Článek IT Assurance Guide - díl 2.](papers/ITAG_part_2.pdf)
+* [Článek IT Assurance Guide - díl 3.](papers/ITAG_part_3.pdf)
+* [Návod na kakulaci nákladů na nekvalitu plynoucí z duplicitních záznamů](dq_cost_insurance.html)
+
 ### Doporučená literatura
 
 * McGILVRAY, D. Executing Data Quality Projects: Ten Steps to Quality Data and Trusted Information. Morgan Kaufmann, 2008. xviii, 325 s. ISBN 978-0-12-374369-5.
